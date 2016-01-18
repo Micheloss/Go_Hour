@@ -79,12 +79,12 @@ func About(w http.ResponseWriter, req *http.Request) {
 	if err2 != nil {
 
 	}
-	fmt.Printf("%f\n", x)
-	fmt.Printf("%d\n", int(x))
+	//fmt.Printf("%f\n", x)
+	//fmt.Printf("%d\n", int(x))
 	ahora := time.Now().Hour() + int(x)
-	fmt.Printf("%d\n", ahora)
+	//fmt.Printf("%d\n", ahora)
 	ahora2 := strconv.Itoa(ahora)
-	fmt.Printf(ahora2)
+	//fmt.Printf(ahora2)
 	context := Context{Title: ahora2}
 	render(w, "result.html", context)
 }
