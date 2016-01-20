@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -91,19 +92,63 @@ func About(w http.ResponseWriter, req *http.Request) {
 	}
 	//fmt.Printf("%f\n", x)
 	//fmt.Printf("%d\n", int(x))
-	hora_Madrid := time.Now().Hour() + 6
 	desfase := int(x)
-	ahora := 0
+	fmt.Printf("%d\n", desfase)
+
+	//hora_Madrid = time.Now().Hour()
+	//ahora_ah := time.Now().Date()
+
+	// if start < ahora_ah {
+	// 	hora_Madrid := -(desfase) + 6
+	// } else {
+	// 	hora_Madrid := desfase + 5
+	// }
+	ahora_3 := 0
 	if desfase <= 0 {
 
-		ahora = hora_Madrid - int(x)
+		ahora_3 = desfase - 1
+		ahora_3 = ahora_3 * -1
+
 	} else {
 
-		ahora = hora_Madrid + int(x)
+		ahora_3 = 1 + desfase
+		ahora_3 = ahora_3 * -1
 	}
-	//fmt.Printf("%d\n", ahora)
-	ahora2 := strconv.Itoa(ahora)
-	//fmt.Printf(ahora2)
+
+	fmt.Printf("%s\n", string(req.FormValue("hour")))
+	you := strings.Replace(string(req.FormValue("hour")), ":", ".", -1)
+	ahora, _ := strconv.ParseFloat(you, 64)
+	ahora_4 := ahora + float64(ahora_3)
+	fmt.Printf("%f\n", ahora)
+	fmt.Printf("%d\n", ahora_3)
+	fmt.Printf("%f\n", ahora_4)
+	ahora5 := 0.00
+	if ahora_4 >= 12 {
+
+		ahora5 = ahora_4 - 12
+
+	} else {
+
+		if ahora_4 < 0 {
+			ahora5 = ahora_4 + 12
+
+		}
+	}
+
+	ahora2 := strconv.FormatFloat(ahora5, 'f', 2, 64)
+
+	ahora2 = strings.Replace(ahora2, ".", ":", -1)
+	fmt.Printf(ahora2)
+
+	if ahora_4 > 24 {
+
+		ahora2 = ahora2 + " am"
+
+	} else {
+
+		ahora2 = ahora2 + " pm"
+	}
+
 	context := Context{Title: ahora2, City: string(req.FormValue("city"))}
 	render(w, "result.html", context)
 
