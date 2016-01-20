@@ -16,6 +16,7 @@ const STATIC_ROOT string = "static/"
 
 type Context struct {
 	Title  string
+	City   string
 	Static string
 }
 
@@ -41,7 +42,8 @@ func Home(w http.ResponseWriter, req *http.Request) {
 
 func About(w http.ResponseWriter, req *http.Request) {
 
-	resp, err := http.Get("http://api.worldweatheronline.com/free/v2/tz.ashx?key=f787b94970cdef524e0f93891f2e5&q=New-York&format=xml")
+	log.Printf(string(req.FormValue("city")))
+	resp, err := http.Get("http://api.worldweatheronline.com/free/v2/tz.ashx?key=f787b94970cdef524e0f93891f2e5&q=" + req.FormValue("city") + "&format=xml")
 
 	if err != nil {
 
@@ -71,6 +73,14 @@ func About(w http.ResponseWriter, req *http.Request) {
 		}
 
 	}
+	if body2 == "" {
+		ahora2 := "Error parsing the city"
+		context := Context{Title: ahora2, City: string(req.FormValue("city"))}
+
+		render(w, "result.html", context)
+
+	}
+
 	//s := new(Result)
 	//xml.Unmarshal(body, &s)
 	log.Printf(body2)
@@ -81,12 +91,22 @@ func About(w http.ResponseWriter, req *http.Request) {
 	}
 	//fmt.Printf("%f\n", x)
 	//fmt.Printf("%d\n", int(x))
-	ahora := time.Now().Hour() + int(x)
+	hora_Madrid := time.Now().Hour() + 6
+	desfase := int(x)
+	ahora := 0
+	if desfase <= 0 {
+
+		ahora = hora_Madrid - int(x)
+	} else {
+
+		ahora = hora_Madrid + int(x)
+	}
 	//fmt.Printf("%d\n", ahora)
 	ahora2 := strconv.Itoa(ahora)
 	//fmt.Printf(ahora2)
-	context := Context{Title: ahora2}
+	context := Context{Title: ahora2, City: string(req.FormValue("city"))}
 	render(w, "result.html", context)
+
 }
 
 func render(w http.ResponseWriter, tmpl string, context Context) {
@@ -119,7 +139,7 @@ func main() {
 	http.HandleFunc("/", Home)
 	http.HandleFunc("/result", About)
 	http.HandleFunc(STATIC_URL, StaticHandler)
-	err := http.ListenAndServe(":8000", nil)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
